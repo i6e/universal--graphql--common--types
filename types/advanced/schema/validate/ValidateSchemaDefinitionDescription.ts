@@ -1,4 +1,5 @@
 import { Values } from "@icehouse/universal--util--typescript--types";
+import { ValidateIdentifiers } from "../../common/validate/ValidateIdentifiers";
 import { ObjectTypeDefinitionDescription } from "../ObjectTypeDefinitionDescription";
 import { SchemaDefinitionDescription } from "../SchemaDefinitionDescription";
 import { ValidateTypeDefinitionDescription } from "./ValidateTypeDefinitionDescription";
@@ -16,6 +17,7 @@ export type ValidateSchemaDefinitionDescription<
   | ValidateNonUnion<"schema", TSchema, "Schema">
   | ValidateNonUnion<"schema.query", TSchema["query"], "Type name">
   | ValidateNonUnion<"schema.mutation", TSchema["mutation"], "Type name">
+  | ValidateIdentifiers<"schema.tyoes", Extract<keyof TSchema["types"], string>>
   | (TSchema["query"] extends keyof TSchema["types"]
       ? TSchema["types"][TSchema["query"]] extends ObjectTypeDefinitionDescription
         ? never
@@ -30,7 +32,7 @@ export type ValidateSchemaDefinitionDescription<
       [K in Extract<
         keyof TSchema["types"],
         string
-      >]-?: ValidateTypeDefinitionDescription<
+      >]: ValidateTypeDefinitionDescription<
         TSchema,
         `schema.types.${K}`,
         TSchema["types"][K]

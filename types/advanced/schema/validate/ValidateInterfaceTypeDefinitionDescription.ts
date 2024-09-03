@@ -20,7 +20,7 @@ export type ValidateInterfaceTypeDefinitionDescription<
       [K in Extract<
         keyof TType["fields"],
         string
-      >]-?: ValidateObjectTypeFieldDescription<
+      >]: ValidateObjectTypeFieldDescription<
         TSchema,
         `${TDebugPath}.fields.${K}`,
         TType["fields"][K]

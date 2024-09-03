@@ -1,4 +1,5 @@
 import { Values } from "@icehouse/universal--util--typescript--types";
+import { ValidateIdentifiers } from "../../common/validate/ValidateIdentifiers";
 import { InterfaceTypeDefinitionDescription } from "../InterfaceTypeDefinitionDescription";
 import { ObjectTypeDefinitionDescription } from "../ObjectTypeDefinitionDescription";
 import { SchemaDefinitionDescription } from "../SchemaDefinitionDescription";
@@ -23,6 +24,10 @@ export type ValidateObjectTypeDefinitionDescription<
       TType["implements"],
       "Types to implement"
     >
+  | ValidateIdentifiers<
+      `${TDebugPath}.fields`,
+      Extract<keyof TType["fields"], string>
+    >
   | (TType["implements"] extends infer I extends string
       ? I extends keyof TSchema["types"]
         ? TSchema["types"][I] extends InterfaceTypeDefinitionDescription
@@ -34,7 +39,7 @@ export type ValidateObjectTypeDefinitionDescription<
       [K in Extract<
         keyof TType["fields"],
         string
-      >]-?: ValidateObjectTypeFieldDescription<
+      >]: ValidateObjectTypeFieldDescription<
         TSchema,
         `${TDebugPath}.fields.${K}`,
         TType["fields"][K]
