@@ -22,6 +22,6 @@
     "typescript": "^5.5.2"
   },
   "dependencies": {
-    "@icehouse/universal--util--typescript--types": "^0.1.1"
+    "@icehouse/universal--util--typescript--types": "^0.1.2"
   }
 }

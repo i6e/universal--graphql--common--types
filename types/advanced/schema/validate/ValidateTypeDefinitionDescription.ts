@@ -1,43 +1,28 @@
-import {
-  StringUnionToString,
-  UnionToIntersection,
-} from "@icehouse/universal--util--typescript--types";
+import { EnumTypeDefinitionDescription } from "../EnumTypeDefinitionDescription";
+import { InputTypeDefinitionDescription } from "../InputTypeDefinitionDescription";
 import { InterfaceTypeDefinitionDescription } from "../InterfaceTypeDefinitionDescription";
 import { ObjectTypeDefinitionDescription } from "../ObjectTypeDefinitionDescription";
+import { ScalarTypeDefinitionDescription } from "../ScalarTypeDefinitionDescription";
 import { SchemaDefinitionDescription } from "../SchemaDefinitionDescription";
-import { TypeDefinitionDescription } from "../TypeDefinitionDescription";
-import { MergeValidationResults } from "./util/MergeValidationResults";
+import { UnionTypeDefinitionDescription } from "../UnionTypeDefinitionDescription";
 import { ValidateInterfaceTypeDefinitionDescription } from "./ValidateInterfaceTypeDefinitionDescription";
-import { ValidateObjectTypeTypeDefinitionDescription } from "./ValidateObjectTypeDefinitionDescription";
+import { ValidateObjectTypeDefinitionDescription } from "./ValidateObjectTypeDefinitionDescription";
+import { ValidateUnionTypeDefinitionDescription } from "./ValidateUnionTypeDefinitionDescription";
 
 export type ValidateTypeDefinitionDescription<
   TSchema extends SchemaDefinitionDescription,
-  TTypeName extends string
-> = [UnionToIntersection<TTypeName>] extends [never]
-  ? {
-      success: false;
-      messages: [
-        `TTypeName must not be a union type: ${StringUnionToString<TTypeName>}`
-      ];
-    }
-  : TTypeName extends Extract<keyof TSchema["types"], string>
-  ? TSchema["types"][TTypeName] extends TypeDefinitionDescription
-    ? MergeValidationResults<
-        | (TSchema["types"][TTypeName] extends InterfaceTypeDefinitionDescription
-            ? ValidateInterfaceTypeDefinitionDescription<TSchema, TTypeName>
-            : never)
-        | (TSchema["types"][TTypeName] extends ObjectTypeDefinitionDescription
-            ? ValidateObjectTypeTypeDefinitionDescription<TSchema, TTypeName>
-            : never)
-        // TODO: entirely rewrite.
-      >
-    : {
-        success: false;
-        messages: [
-          `schema.types.${TTypeName} is not valid TypeDefinitionDescription`
-        ];
-      }
-  : {
-      success: false;
-      messages: [`${TTypeName} is not type of the schema`];
-    };
+  TDebugPath extends string,
+  TType
+> = TType extends InterfaceTypeDefinitionDescription
+  ? ValidateInterfaceTypeDefinitionDescription<TSchema, TDebugPath, TType>
+  : TType extends ObjectTypeDefinitionDescription
+  ? ValidateObjectTypeDefinitionDescription<TSchema, TDebugPath, TType>
+  : TType extends UnionTypeDefinitionDescription
+  ? ValidateUnionTypeDefinitionDescription<TSchema, TDebugPath, TType>
+  : TType extends EnumTypeDefinitionDescription
+  ? ValidateEnumTypeDefinitionDescription<TSchema, TDebugPath, TType>
+  : TType extends InputTypeDefinitionDescription
+  ? ValidateInputTypeDefinitionDescription<TSchema, TDebugPath, TType>
+  : TType extends ScalarTypeDefinitionDescription
+  ? ValidateScalarTypeDefinitionDescription<TSchema, TDebugPath, TType>
+  : `${TDebugPath}: A type must be one of interface/object/union/enum/input/scalar`;

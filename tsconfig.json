@@ -14,5 +14,5 @@
 
     // package
   },
-  "exclude": ["samples"],
+  "exclude": ["samples", "**/__test__"],
 }

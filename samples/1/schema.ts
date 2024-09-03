@@ -1,3 +1,4 @@
+import { ExpandRecursively } from "@icehouse/universal--util--typescript--types";
 import { ValidateSchemaDefinitionDescription } from "../../types/advanced/schema/validate/ValidateSchemaDefinitionDescription";
 import { Mutation } from "./types/Mutation";
 import { Query } from "./types/Query";
@@ -14,4 +15,6 @@ export type Schema = {
   };
 };
 
-type MyValidationResult = ValidateSchemaDefinitionDescription<Schema>;
+type MyValidationResult = ExpandRecursively<
+  ValidateSchemaDefinitionDescription<Schema>
+>;

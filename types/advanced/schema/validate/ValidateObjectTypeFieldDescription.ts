@@ -1,51 +1,28 @@
-import { IsSameType } from "@icehouse/universal--util--typescript--types";
-import { ObjectTypeDefinitionDescription } from "../ObjectTypeDefinitionDescription";
+import { Values } from "@icehouse/universal--util--typescript--types";
 import { ObjectTypeFieldDescription } from "../ObjectTypeFieldDescription";
 import { SchemaDefinitionDescription } from "../SchemaDefinitionDescription";
-import { MergeValidationResults } from "./util/MergeValidationResults";
-import { ValidateArgumentsDescription } from "./ValidateArgumentsDescription";
+import { ValidateInputTypeDescription } from "./ValidateInputTypeDescription";
+import { ValidateOutputTypeDescription } from "./ValidateOutputTypeDescription";
 
 export type ValidateObjectTypeFieldDescription<
   TSchema extends SchemaDefinitionDescription,
-  TType extends ObjectTypeDefinitionDescription,
-  TFieldName extends Extract<keyof TType["fields"], string>
-> = TType["name"] extends keyof TSchema["types"]
-  ? IsSameType<
-      TSchema["types"][TType["name"]],
-      TType,
-      true,
-      false
-    > extends false
-    ? {
-        success: false;
-        messages: [`Incorrect type given: ${TType["name"]}`];
-      }
-    : TType["fields"][TFieldName] extends ObjectTypeFieldDescription
-    ? MergeValidationResults<
-        | (IsSameType<
-            TFieldName,
-            TType["fields"][TFieldName]["name"]
-          > extends false
-            ? {
-                success: false;
-                messages: [
-                  `schema.${TType["name"]}.fields.${TFieldName}.name is not match with ${TFieldName}`
-                ];
-              }
-            : never)
-        | ValidateArgumentsDescription<
+  TDebugPath extends string,
+  TField
+> = TField extends ObjectTypeFieldDescription
+  ?
+      | Values<{
+          [K in Extract<
+            keyof TField["arguments"],
+            string
+          >]: ValidateInputTypeDescription<
             TSchema,
-            TType["fields"][TFieldName]["arguments"],
-            ``
-          >
-      >
-    : {
-        success: false;
-        messages: [
-          `schema.${TType["name"]}.fields.${TFieldName} is not valid field`
-        ];
-      }
-  : {
-      success: false;
-      messages: [`Incorrect type given: ${TType["name"]}`];
-    };
+            `${TDebugPath}.arguments.${K}`,
+            TField["arguments"][K]
+          >;
+        }>
+      | ValidateOutputTypeDescription<
+          TSchema,
+          `${TDebugPath}.type`,
+          TField["type"]
+        >
+  : `${TDebugPath}: Malformed field`;

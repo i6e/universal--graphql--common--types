@@ -1,47 +1,34 @@
-import {
-  StringUnionToString,
-  UnionToIntersection,
-} from "@icehouse/universal--util--typescript--types";
-import { RequestType } from "../../../request/RequestType";
+import { Values } from "@icehouse/universal--util--typescript--types";
 import { ObjectTypeDefinitionDescription } from "../ObjectTypeDefinitionDescription";
 import { SchemaDefinitionDescription } from "../SchemaDefinitionDescription";
-import { MergeValidationResults } from "./util/MergeValidationResults";
 import { ValidateTypeDefinitionDescription } from "./ValidateTypeDefinitionDescription";
+import { ValidateForUnknownFields } from "./util/ValidateForUnknownFields";
 
 export type ValidateSchemaDefinitionDescription<
   TSchema extends SchemaDefinitionDescription
-> = MergeValidationResults<
-  | ValidateSchemaDefinitionDescriptionMain<TSchema, "query">
-  | ValidateSchemaDefinitionDescriptionMain<TSchema, "mutation">
-  | {
-      [K in keyof TSchema["types"]]-?: K extends string
-        ? ValidateTypeDefinitionDescription<TSchema, K>
-        : never;
-    }[keyof TSchema["types"]]
->;
-
-type ValidateSchemaDefinitionDescriptionMain<
-  TSchema extends SchemaDefinitionDescription,
-  TRequestType extends RequestType
-> = [UnionToIntersection<TSchema[TRequestType]>] extends [never]
-  ? {
-      success: false;
-      messages: [
-        `SchemaDefinitionDescription#${TRequestType} must not be a union type: ${StringUnionToString<
-          TSchema[TRequestType]
-        >}`
-      ];
-    }
-  : TSchema[TRequestType] extends keyof TSchema["types"]
-  ? TSchema["types"][TSchema[TRequestType]] extends ObjectTypeDefinitionDescription
-    ? { success: true; messages: [] }
-    : {
-        success: false;
-        messages: [
-          `${TRequestType} type(${TSchema[TRequestType]}) is not an object type`
-        ];
-      }
-  : {
-      success: false;
-      messages: [`No such type: ${TSchema[TRequestType]}`];
-    };
+> =
+  | ValidateForUnknownFields<
+      "schema",
+      TSchema,
+      keyof SchemaDefinitionDescription
+    >
+  | (TSchema["query"] extends keyof TSchema["types"]
+      ? TSchema["types"][TSchema["query"]] extends ObjectTypeDefinitionDescription
+        ? never
+        : `schema.query: Query type (${TSchema["query"]} must be objet type)`
+      : never)
+  | (TSchema["mutation"] extends keyof TSchema["types"]
+      ? TSchema["types"][TSchema["mutation"]] extends ObjectTypeDefinitionDescription
+        ? never
+        : `schema.mutation: Mutation type (${TSchema["mutation"]} must be objet type)`
+      : never)
+  | Values<{
+      [K in Extract<
+        keyof TSchema["types"],
+        string
+      >]-?: ValidateTypeDefinitionDescription<
+        TSchema,
+        `schema.types.${K}`,
+        TSchema["types"][K]
+      >;
+    }>;

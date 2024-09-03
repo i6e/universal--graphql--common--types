@@ -1,26 +1,20 @@
 export type Mutation = {
   type: "object";
-  name: "Mutation";
   fields: {
     updateName: {
-      name: "updateName";
       type: {
         type: "terminal";
         isRequired: true;
-        name: "User";
+        typeName: "User";
       };
       arguments: {
         name: {
-          type: {
-            type: "terminal";
-            isRequired: true;
-            name: "User";
-          }
-          name: "name",
-        }
+          type: "terminal";
+          isRequired: true;
+          typeName: "String";
+        };
       };
     };
-    thisIsAnError: void;
   };
   implements: never;
 };
