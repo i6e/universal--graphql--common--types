@@ -1,7 +1,7 @@
-export interface Query {
+export interface Post {
   type: "object";
   fields: {
-    me: {
+    author: {
       type: {
         type: "terminal";
         isRequired: true;
@@ -10,5 +10,5 @@ export interface Query {
       arguments: {};
     };
   };
-  implements: never;
+  implements: "Entity" | "Content";
 }

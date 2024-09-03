@@ -14,5 +14,5 @@
 
     // package
   },
-  "exclude": ["samples", "**/__test__"],
+  "exclude": ["samples", "**/__test__", "**/*.test.ts"],
 }

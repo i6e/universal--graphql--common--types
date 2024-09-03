@@ -1,26 +1,24 @@
 import { Values } from "@icehouse/universal--util--typescript--types";
-import { InterfaceTypeDefinitionDescription } from "../InterfaceTypeDefinitionDescription";
+import { InputTypeDefinitionDescription } from "../InputTypeDefinitionDescription";
 import { SchemaDefinitionDescription } from "../SchemaDefinitionDescription";
 import { ValidateForUnknownFields } from "./util/ValidateForUnknownFields";
-import { ValidateNonUnion } from "./util/ValidateNonUnion";
-import { ValidateObjectTypeFieldDescription } from "./ValidateObjectTypeFieldDescription";
+import { ValidateInputTypeFieldDescription } from "./ValidateInputTypeFieldDescription";
 
-export type ValidateInterfaceTypeDefinitionDescription<
+export type ValidateInputTypeDefinitionDescription<
   TSchema extends SchemaDefinitionDescription,
   TDebugPath extends string,
-  TType extends InterfaceTypeDefinitionDescription
+  TType extends InputTypeDefinitionDescription
 > =
   | ValidateForUnknownFields<
       TDebugPath,
       TType,
-      keyof InterfaceTypeDefinitionDescription
+      keyof InputTypeDefinitionDescription
     >
-  | ValidateNonUnion<TDebugPath, TType, "Type(internal)">
   | Values<{
       [K in Extract<
         keyof TType["fields"],
         string
-      >]-?: ValidateObjectTypeFieldDescription<
+      >]-?: ValidateInputTypeFieldDescription<
         TSchema,
         `${TDebugPath}.fields.${K}`,
         TType["fields"][K]

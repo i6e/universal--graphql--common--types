@@ -5,17 +5,20 @@ import { ScalarTypeDefinitionDescription } from "../ScalarTypeDefinitionDescript
 import { SchemaDefinitionDescription } from "../SchemaDefinitionDescription";
 import { TerminalDescription } from "../TerminalDescription";
 import { ValidateForUnknownFields } from "./util/ValidateForUnknownFields";
+import { ValidateNonUnion } from "./util/ValidateNonUnion";
 import { ValidateBuiltinType } from "./ValidateBuiltinType";
 
 export type ValidateInputTypeDescription<
   TSchema extends SchemaDefinitionDescription,
   TDebugPath extends string,
   TType
-> = TType extends ArrayDescription
-  ? ValidateInputArrayTypeDescription<TSchema, TDebugPath, TType>
-  : TType extends TerminalDescription
-  ? ValidateInputTerminalTypeDescription<TSchema, TDebugPath, TType>
-  : `${TDebugPath}: An input type must be one of array/terminal`;
+> =
+  | ValidateNonUnion<TDebugPath, TType, "Type">
+  | (TType extends ArrayDescription
+      ? ValidateInputArrayTypeDescription<TSchema, TDebugPath, TType>
+      : TType extends TerminalDescription
+      ? ValidateInputTerminalTypeDescription<TSchema, TDebugPath, TType>
+      : `${TDebugPath}: An input type must be one of array/terminal`);
 
 type ValidateInputArrayTypeDescription<
   TSchema extends SchemaDefinitionDescription,
@@ -23,6 +26,11 @@ type ValidateInputArrayTypeDescription<
   TType extends ArrayDescription
 > =
   | ValidateForUnknownFields<TDebugPath, TType, keyof ArrayDescription>
+  | ValidateNonUnion<
+      `${TDebugPath}.isArrayRequired`,
+      TType["isArrayRequired"],
+      `Boolean flag`
+    >
   | ValidateInputTypeDescription<
       TSchema,
       `${TDebugPath}[]`,
@@ -35,6 +43,12 @@ type ValidateInputTerminalTypeDescription<
   TType extends TerminalDescription
 > =
   | ValidateForUnknownFields<TDebugPath, TType, keyof TerminalDescription>
+  | ValidateNonUnion<
+      `${TDebugPath}.isRequired`,
+      TType["isRequired"],
+      `Boolean flag`
+    >
+  | ValidateNonUnion<`${TDebugPath}.typeName`, TType["typeName"], `Type name`>
   | (TType["typeName"] extends keyof TSchema["types"]
       ? TSchema["types"][TType["typeName"]] extends
           | EnumTypeDefinitionDescription

@@ -1,4 +1,4 @@
-export type Mutation = {
+export interface Mutation {
   type: "object";
   fields: {
     updateName: {
@@ -17,4 +17,4 @@ export type Mutation = {
     };
   };
   implements: never;
-};
+}

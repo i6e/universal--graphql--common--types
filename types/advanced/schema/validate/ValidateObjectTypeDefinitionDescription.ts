@@ -3,6 +3,8 @@ import { InterfaceTypeDefinitionDescription } from "../InterfaceTypeDefinitionDe
 import { ObjectTypeDefinitionDescription } from "../ObjectTypeDefinitionDescription";
 import { SchemaDefinitionDescription } from "../SchemaDefinitionDescription";
 import { ValidateForUnknownFields } from "./util/ValidateForUnknownFields";
+import { ValidateNonUnion } from "./util/ValidateNonUnion";
+import { ValidateStringLiteral } from "./util/ValidateStringLiteral";
 import { ValidateObjectTypeFieldDescription } from "./ValidateObjectTypeFieldDescription";
 
 export type ValidateObjectTypeDefinitionDescription<
@@ -15,10 +17,18 @@ export type ValidateObjectTypeDefinitionDescription<
       TType,
       keyof ObjectTypeDefinitionDescription
     >
-  | (TType["implements"] extends keyof TSchema["types"]
-      ? TSchema["types"][TType["implements"]] extends InterfaceTypeDefinitionDescription
-        ? never
-        : `${TDebugPath}.implements: Type to implement (${TType["implements"]} must be interface type)`
+  | ValidateNonUnion<TDebugPath, TType, "Type(internal)">
+  | ValidateStringLiteral<
+      `${TDebugPath}.implements`,
+      TType["implements"],
+      "Types to implement"
+    >
+  | (TType["implements"] extends infer I extends string
+      ? I extends keyof TSchema["types"]
+        ? TSchema["types"][I] extends InterfaceTypeDefinitionDescription
+          ? never
+          : `${TDebugPath}.implements: Type to implement (${I}) must be interface type`
+        : `${TDebugPath}.implements: No such type: ${I}`
       : never)
   | Values<{
       [K in Extract<

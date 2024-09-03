@@ -18,6 +18,6 @@ export type ValidateUnionTypeDefinitionDescription<
       [K in TType["variants"]]: K extends keyof TSchema["types"]
         ? TSchema["types"][K] extends ObjectTypeDefinitionDescription
           ? never
-          : `${TDebugPath}.variants: Union variant (${K} must be objet type)`
+          : `${TDebugPath}.variants: Union variant (${K}) must be objet type`
         : `${TDebugPath}.variants: No such type: ${K}`;
     }>;

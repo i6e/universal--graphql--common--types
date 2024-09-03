@@ -1,14 +1,13 @@
-export interface Query {
-  type: "object";
+export interface Entity {
+  type: "interface";
   fields: {
-    me: {
+    id: {
       type: {
         type: "terminal";
         isRequired: true;
-        typeName: "User";
+        typeName: "ID";
       };
       arguments: {};
     };
   };
-  implements: never;
 }
